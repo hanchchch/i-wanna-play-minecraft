@@ -23,8 +23,14 @@ $ i-wanna-play-minecraft for 2 hours
 the server will last for 2 hours
 ```
 
+Turn off the server
+
+```
+$ i-wanna-play-minecraft not anymore
+```
+
 Destory the server
 
 ```
-$ i-wanna-play-minecraft no more
+$ i-wanna-play-minecraft never again
 ```
