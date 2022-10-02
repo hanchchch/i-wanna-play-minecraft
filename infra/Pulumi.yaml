@@ -1,0 +1,3 @@
+name: i-wanna-play-minecraft
+description: Automated Minecraft Server Provisioning
+runtime: nodejs
