@@ -4,8 +4,23 @@ import (
 	"fmt"
 
 	"github.com/hanchchch/i-wanna-play-minecraft/pkg/args"
+	"github.com/hanchchch/i-wanna-play-minecraft/pkg/instance"
 	"github.com/hanchchch/i-wanna-play-minecraft/pkg/provision"
+	"github.com/hanchchch/i-wanna-play-minecraft/pkg/utils"
 )
+
+func getInstance(p *provision.PulumiProvisioner, c *args.Config) *instance.AWSInstance {
+	r, err := p.Up()
+	if err != nil {
+		panic(err)
+	}
+	instanceId := r.Outputs["serverId"].Value.(string)
+	return instance.NewAWSInstance(instance.AWSInstanceOptions{
+		InstanceID: instanceId,
+		Profile:    c.Profile,
+		Region:     c.Region,
+	})
+}
 
 func main() {
 	a, err := args.ParseArgs()
@@ -13,35 +28,47 @@ func main() {
 		panic(err)
 	}
 
+	c, err := args.LoadConfig()
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Printf("%s\n", a.Command)
 
-	fmt.Printf("preparing pulumi provider...")
+	fmt.Println("preparing pulumi provider...")
 	p := provision.NewPulumiProvisioner()
-	fmt.Printf(" done\n")
-
 	p.SetConfig(provision.PulumiConfig{
-		Region:        "ap-northeast-2",
-		Profile:       "personal",
-		SSHPubKeyPath: "minecraft-pub.pem",
-		InstanceType:  "c6i.large",
+		Region:        c.Region,
+		Profile:       c.Profile,
+		SSHPubKeyPath: c.SSHPubKeyPath,
+		InstanceType:  c.InstanceType,
 	})
-
-	fmt.Printf("refreshing...")
-	p.Refresh()
-	fmt.Printf(" done\n")
+	if err := p.Refresh(); err != nil {
+		panic(err)
+	}
 
 	switch a.Command {
 	case args.Create:
-		fmt.Printf("creating...")
-		p.Up()
+		fmt.Println("creating...")
+		if _, err := p.Up(); err != nil {
+			panic(err)
+		}
 	case args.Destroy:
-		fmt.Printf("destroying...")
-		p.Destroy()
+		fmt.Println("destroying...")
+		if _, err := p.Destroy(); err != nil {
+			panic(err)
+		}
 	case args.On:
-		fmt.Printf("turning on...")
+		fmt.Println("turning on...")
+		i := getInstance(p, &c)
+		go utils.PrintElapsedTime("running")
+		if err := i.RunFor(a.Params.Duration); err != nil {
+			panic(err)
+		}
 	case args.Off:
-		fmt.Printf("turning off...")
+		fmt.Println("turning off...")
+		if _, err := getInstance(p, &c).Stop(); err != nil {
+			panic(err)
+		}
 	}
-	fmt.Println("done")
-
 }

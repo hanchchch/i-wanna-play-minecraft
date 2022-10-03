@@ -37,12 +37,13 @@ func ParseArgs() (Args, error) {
 		return default_args, nil
 	}
 
+	if args[0] == "with" {
+		return Args{
+			Command: Create,
+		}, nil
+	}
+
 	if args[0] == "for" {
-		if strings.Join(args[1:], " ") == "the first time" {
-			return Args{
-				Command: Create,
-			}, nil
-		}
 		duration, err := time.ParseDuration(strings.Join(args[1:], " "))
 		if err != nil {
 			return default_args, err

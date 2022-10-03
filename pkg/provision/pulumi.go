@@ -65,25 +65,12 @@ func (p *PulumiProvisioner) Refresh() error {
 	return nil
 }
 
-func (p *PulumiProvisioner) Up() error {
+func (p *PulumiProvisioner) Up() (auto.UpResult, error) {
 	stdoutStreamer := optup.ProgressStreams(os.Stdout)
-
-	// TODO handle result
-	_, err := p.stack.Up(context.Background(), stdoutStreamer)
-	if err != nil {
-		return fmt.Errorf("failed to update stack: %v", err)
-	}
-
-	return nil
+	return p.stack.Up(context.Background(), stdoutStreamer)
 }
 
-func (p *PulumiProvisioner) Destroy() error {
+func (p *PulumiProvisioner) Destroy() (auto.DestroyResult, error) {
 	stdoutStreamer := optdestroy.ProgressStreams(os.Stdout)
-
-	// TODO handle result
-	_, err := p.stack.Destroy(context.Background(), stdoutStreamer)
-	if err != nil {
-		return fmt.Errorf("failed to destroy stack: %v", err)
-	}
-	return nil
+	return p.stack.Destroy(context.Background(), stdoutStreamer)
 }

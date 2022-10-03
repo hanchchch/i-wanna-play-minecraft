@@ -11,7 +11,7 @@ Not yet.
 Provision a new Minecraft server stack
 
 ```
-$ i-wanna-play-minecraft for the first time
+$ i-wanna-play-minecraft with a new server
 instance type (c6i.large):
 public key location for the server (none):
 ```
